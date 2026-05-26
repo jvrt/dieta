@@ -37,12 +37,15 @@
   /* LAYOUT */
   .app { display:flex; flex-direction:column; min-height:100vh; max-width:480px; margin:0 auto; }
   
-  /* HEADER */
+  /* HEADER (GLASSMORPHISM) */
   .header {
-    padding:20px 20px 0;
+    padding:20px 20px 10px;
     display:flex; align-items:center; justify-content:space-between;
     position:sticky; top:0; z-index:100;
-    background:linear-gradient(180deg, var(--bg) 70%, transparent);
+    background:rgba(10, 10, 15, 0.8);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid rgba(42, 42, 58, 0.4);
   }
   .logo { font-size:18px; font-weight:800; letter-spacing:-0.5px; }
   .logo span { color:var(--accent); }
@@ -52,7 +55,7 @@
   }
   .macro-pill {
     padding:3px 8px; border-radius:99px; border:1px solid var(--border);
-    background:var(--bg3); font-size:10px;
+    background:rgba(26, 26, 36, 0.6); font-size:10px;
     transition:all 0.2s;
   }
   .macro-pill.ok { border-color:var(--accent); color:var(--accent); }
@@ -94,9 +97,24 @@
   .meal-card {
     background:var(--card); border:1px solid var(--border);
     border-radius:14px; margin-bottom:12px; overflow:hidden;
-    transition:border-color 0.2s;
+    transition:all 0.25s ease;
   }
-  .meal-card:hover { border-color:var(--accent)44; }
+  .meal-card:hover { border-color:rgba(200, 245, 90, 0.25); }
+  
+  /* CHECKED MEAL EFFECT */
+  .meal-card.checked {
+    border-color:rgba(200, 245, 90, 0.25);
+    background:rgba(22, 22, 31, 0.5);
+  }
+  .meal-card.checked .meal-name {
+    color:var(--muted);
+    text-decoration:line-through;
+    text-decoration-color:rgba(107, 107, 133, 0.4);
+  }
+  .meal-card.checked .meal-time {
+    color:var(--muted);
+  }
+  
   .meal-header {
     padding:14px 16px; display:flex; align-items:center;
     justify-content:space-between; cursor:pointer;
@@ -105,8 +123,9 @@
   .meal-time {
     font-family:var(--mono); font-size:11px; color:var(--accent);
     font-weight:500;
+    transition:color 0.2s;
   }
-  .meal-name { font-size:15px; font-weight:700; margin-top:2px; }
+  .meal-name { font-size:15px; font-weight:700; margin-top:2px; transition:color 0.2s; }
   .meal-macros {
     display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;
   }
@@ -114,9 +133,32 @@
     font-family:var(--mono); font-size:10px; color:var(--muted);
     background:var(--bg3); padding:2px 7px; border-radius:4px;
   }
+  
+  /* MEAL CHECK BUTTON */
+  .meal-check-btn {
+    width:22px; height:22px; border-radius:50%;
+    border:2px solid var(--border);
+    background:transparent;
+    color:transparent;
+    font-size:11px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    flex-shrink:0;
+    user-select:none;
+  }
+  .meal-check-btn.checked {
+    background:var(--accent);
+    border-color:var(--accent);
+    color:var(--bg);
+    box-shadow:0 0 8px rgba(200, 245, 90, 0.4);
+    transform:scale(1.1);
+  }
+  .meal-check-btn:active { transform:scale(0.9); }
+  
   .meal-toggle {
     font-size:18px; color:var(--muted); transition:transform 0.2s;
     line-height:1;
+    margin-left:10px;
   }
   .meal-card.open .meal-toggle { transform:rotate(180deg); }
   .meal-body {
@@ -147,14 +189,16 @@
 
   /* ALTERNATIVAS MODAL */
   .modal-overlay {
-    position:fixed; inset:0; background:#000a; z-index:200;
+    position:fixed; inset:0; background:rgba(0, 0, 0, 0.6); z-index:200;
     display:none; align-items:flex-end; justify-content:center;
     padding:0;
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
   }
   .modal-overlay.open { display:flex; animation:fadeIn 0.2s ease; }
   @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
   .modal {
-    background:var(--bg2); border:1px solid var(--border);
+    background:rgba(17, 17, 24, 0.95); border:1px solid var(--border);
     border-radius:20px 20px 0 0; padding:24px 20px 40px;
     width:100%; max-width:480px; max-height:80vh; overflow-y:auto;
     animation:slideUp 0.3s ease;
@@ -189,7 +233,7 @@
     display:grid; grid-template-columns:repeat(4,1fr); gap:8px;
   }
   .macro-block { text-align:center; }
-  .macro-val { font-size:22px; font-weight:800; font-family:var(--mono); color:var(--accent); }
+  .macro-val { font-size:15px; font-weight:800; font-family:var(--mono); color:var(--accent); white-space:nowrap; }
   .macro-val.p { color:var(--accent2); }
   .macro-val.c { color:var(--warn); }
   .macro-val.g { color:var(--accent3); }
@@ -260,10 +304,11 @@
   .tip-card {
     background:var(--card); border:1px solid var(--border);
     border-radius:12px; padding:16px; margin-bottom:12px;
+    transition:all 0.3s ease;
   }
   .tip-header { display:flex; gap:10px; align-items:center; margin-bottom:10px; }
   .tip-icon { font-size:20px; }
-  .tip-title { font-size:14px; font-weight:800; }
+  .tip-title { font-size:14px; font-weight:800; transition:color 0.2s; }
   .tip-body { font-size:13px; color:var(--muted); line-height:1.6; }
   .tip-body strong { color:var(--text); }
   .tip-card.warn { border-color:var(--warn)44; }
@@ -274,7 +319,8 @@
   .tip-card.crit .tip-title { color:var(--accent3); }
 
   .progress-bar-wrap { height:6px; background:var(--bg3); border-radius:3px; margin-top:8px; overflow:hidden; }
-  .progress-bar { height:100%; border-radius:3px; transition:width 0.5s ease; }
+  .progress-bar { height:100%; border-radius:3px; transition:width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s; }
+  .progress-bar-wrap.small { height:3px; background:var(--bg3); border-radius:1.5px; margin-top:6px; overflow:hidden; }
 
   .hydra-section {
     background:var(--card); border:1px solid var(--border);
@@ -286,10 +332,10 @@
     width:36px; height:36px; border-radius:8px;
     background:var(--bg3); border:1px solid var(--border);
     font-size:18px; display:flex; align-items:center; justify-content:center;
-    cursor:pointer; transition:all 0.15s; user-select:none;
+    cursor:pointer; transition:all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275); user-select:none;
   }
-  .cup.filled { background:#5af5c815; border-color:var(--accent2); }
-  .cup:active { transform:scale(0.9); }
+  .cup.filled { background:#5af5c815; border-color:var(--accent2); box-shadow: 0 0 8px rgba(90, 245, 200, 0.2); }
+  .cup:active { transform:scale(0.85); }
   .hydra-info { font-family:var(--mono); font-size:11px; color:var(--muted); margin-top:10px; }
 
   /* TOAST */
@@ -349,18 +395,34 @@
     <div class="section active" id="section-dieta">
       <div class="day-selector" id="day-selector"></div>
       <div class="macros-banner">
-        <div class="macro-block"><div class="macro-val" id="mb-kcal">—</div><div class="macro-lbl">kcal</div></div>
-        <div class="macro-block"><div class="macro-val p" id="mb-prot">—g</div><div class="macro-lbl">prot</div></div>
-        <div class="macro-block"><div class="macro-val c" id="mb-carb">—g</div><div class="macro-lbl">carbo</div></div>
-        <div class="macro-block"><div class="macro-val g" id="mb-fat">—g</div><div class="macro-lbl">gordura</div></div>
+        <div class="macro-block">
+          <div class="macro-val" id="mb-kcal">—</div>
+          <div class="macro-lbl">kcal</div>
+          <div class="progress-bar-wrap small"><div class="progress-bar" id="pb-kcal" style="width:0%;background:var(--accent);"></div></div>
+        </div>
+        <div class="macro-block">
+          <div class="macro-val p" id="mb-prot">—g</div>
+          <div class="macro-lbl">prot</div>
+          <div class="progress-bar-wrap small"><div class="progress-bar" id="pb-prot" style="width:0%;background:var(--accent2);"></div></div>
+        </div>
+        <div class="macro-block">
+          <div class="macro-val c" id="mb-carb">—g</div>
+          <div class="macro-lbl">carbo</div>
+          <div class="progress-bar-wrap small"><div class="progress-bar" id="pb-carb" style="width:0%;background:var(--warn);"></div></div>
+        </div>
+        <div class="macro-block">
+          <div class="macro-val g" id="mb-fat">—g</div>
+          <div class="macro-lbl">gordura</div>
+          <div class="progress-bar-wrap small"><div class="progress-bar" id="pb-fat" style="width:0%;background:var(--accent3);"></div></div>
+        </div>
       </div>
       <div id="meals-container"></div>
     </div>
 
     <!-- ===== REGISTRO ===== -->
     <div class="section" id="section-registro">
-      <div class="day-label">registrar refeição</div>
-      <div class="register-form">
+      <div class="day-label">registrar refeição livre / avulsa</div>
+      <div class="register-form" style="margin-bottom: 28px;">
         <div class="form-group">
           <label class="form-label">Refeição</label>
           <select class="form-select" id="reg-meal">
@@ -369,10 +431,9 @@
             <option>🥜 Lanche da manhã</option>
             <option>🍽️ Almoço</option>
             <option>🍫 Lanche da tarde</option>
-            <option>🌙 Jantar</option>
             <option>💪 Pré-treino</option>
-            <option>🥛 Pós-treino</option>
-            <option>🌃 Ceia</option>
+            <option>🌙 Janta pós-treino</option>
+            <option>🍔 Refeição Livre</option>
           </select>
         </div>
         <div class="form-group">
@@ -392,6 +453,17 @@
         </div>
         <button class="btn-primary" onclick="saveLog()">Salvar registro</button>
       </div>
+
+      <div class="day-label">evolução de peso</div>
+      <div class="register-form">
+        <div class="form-group" style="display:flex; gap:10px; align-items:flex-end;">
+          <div style="flex:1;">
+            <label class="form-label">Peso Atual (kg)</label>
+            <input type="number" step="0.1" class="form-input" id="reg-weight" placeholder="Ex: 72.5">
+          </div>
+          <button class="btn-primary" onclick="saveWeight()" style="width:auto; padding:0 24px; height:46px;">Salvar</button>
+        </div>
+      </div>
     </div>
 
     <!-- ===== HISTÓRICO ===== -->
@@ -407,57 +479,65 @@
     <div class="section" id="section-dicas">
       <div class="day-label">análise · diagnóstico</div>
 
+      <!-- Evolução do peso (Chart) -->
+      <div class="hydra-section" style="margin-bottom: 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="font-size:13px; font-weight:800; color:var(--accent);">📈 Evolução de Peso (Últimos 7 dias)</div>
+          <div id="weight-current-val" style="font-family:var(--mono); font-size:11px; color:var(--muted);">— kg</div>
+        </div>
+        <div id="weight-chart-container" style="height:110px; display:flex; align-items:center; justify-content:center;">
+          <!-- SVG Chart will be injected here -->
+        </div>
+      </div>
+
       <div class="hydra-section">
         <div class="hydra-title">💧 Hidratação do dia — meta: 3L (12 copos)</div>
         <div class="hydra-cups" id="hydra-cups"></div>
         <div class="hydra-info" id="hydra-info">0 / 12 copos de 250ml</div>
       </div>
 
-      <div class="tip-card crit">
-        <div class="tip-header"><span class="tip-icon">🚨</span><div class="tip-title">Proteína crítica — aumente hoje</div></div>
-        <div class="tip-body">Você está consumindo ~<strong>85-90g de proteína/dia</strong>. Para hipertrofia como ectomorfo você precisa de <strong>144–160g/dia</strong> (2–2,2g/kg). Esse déficit explica a dificuldade de ganho muscular e a "pochete" — o corpo armazena energia sem construir músculo.<br><br>
-        Meta diária: <strong>~150g de proteína</strong>
-        <div class="progress-bar-wrap"><div class="progress-bar" style="width:57%;background:var(--accent3);"></div></div>
-        <span style="font-size:11px;color:var(--muted);">Consumo estimado atual: ~57% da meta</span>
+      <!-- PROTEIN INSIGHT (DYNAMIC) -->
+      <div class="tip-card crit" id="tips-prot-card">
+        <div class="tip-header" id="tips-prot-title"><span class="tip-icon">🚨</span><div class="tip-title">Proteína excelente — continue assim</div></div>
+        <div class="tip-body">Para hipertrofia como ectomorfo você precisa de pelo menos <strong>166g de proteína/dia</strong> (2,3g/kg). Seu plano fornece um excedente maravilhoso de 204g-216g/dia para garantir o máximo anabolismo e recuperação muscular!<br><br>
+        Meta diária recomendada: <strong>~166g de proteína</strong>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="tips-prot-bar" style="width:0%;background:var(--accent3);"></div></div>
+        <span style="font-size:11px;color:var(--muted);" id="tips-prot-text">Consumo estimado atual: ~0% da meta</span>
         </div>
       </div>
 
-      <div class="tip-card crit">
-        <div class="tip-header"><span class="tip-icon">💧</span><div class="tip-title">Hidratação gravemente insuficiente</div></div>
-        <div class="tip-body">1 litro/dia é <strong>metade do mínimo</strong> pra quem não faz nada. Você treina 6x/semana com 2h+ de sessão. Precisa de <strong>3,0–3,5L/dia</strong>. Desidratação crônica = queda de performance, retenção de sódio e inchaço abdominal.<br><br>
-        Dica: ponha alarme a cada hora. O chimarrão ajuda mas não substitui água pura.
-        <div class="progress-bar-wrap"><div class="progress-bar" style="width:28%;background:var(--accent2);"></div></div>
-        <span style="font-size:11px;color:var(--muted);">Hidratação estimada atual: ~28% da meta</span>
+      <!-- WATER INSIGHT (DYNAMIC) -->
+      <div class="tip-card crit" id="tips-hydra-card">
+        <div class="tip-header" id="tips-hydra-title"><span class="tip-icon">💧</span><div class="tip-title">Hidratação gravemente insuficiente</div></div>
+        <div class="tip-body">Você treina intensamente na semana. Precisa de pelo menos <strong>3,0L/dia</strong>. Desidratação crônica derruba a performance nos treinos, gera retenção de líquido e causa inchaço abdominal.<br><br>
+        Meta diária recomendada: <strong>12 copos (3.0L)</strong>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="tips-hydra-bar" style="width:0%;background:var(--accent2);"></div></div>
+        <span style="font-size:11px;color:var(--muted);" id="tips-hydra-text">Beba água regularmente para bater a meta</span>
         </div>
-      </div>
-
-      <div class="tip-card warn">
-        <div class="tip-header"><span class="tip-icon">⚠️</span><div class="tip-title">Lanche da manhã — você está em catabolismo</div></div>
-        <div class="tip-body">Café da manhã ~07h → almoço ~12h = <strong>5h sem comer</strong>. Como ectomorfo seu metabolismo é acelerado: sem combustível, você degrada músculo como energia (catabolismo). Solução fácil: <strong>deixe nuts, uma fruta + queijo ou um scoop de whey</strong> já separado toda noite.</div>
-      </div>
-
-      <div class="tip-card warn">
-        <div class="tip-header"><span class="tip-icon">🍞</span><div class="tip-title">Carboidratos refinados no lanche = pochete</div></div>
-        <div class="tip-body">Pão de queijo + café da tarde sem proteína = pico de insulina sem contrapartida muscular. O excesso vira gordura visceral. Troque por <strong>tapioca + peito de frango / ovos mexidos / iogurte grego</strong>.</div>
       </div>
 
       <div class="tip-card ok">
-        <div class="tip-header"><span class="tip-icon">✅</span><div class="tip-title">O que você já faz bem</div></div>
-        <div class="tip-body">
-          • Treino PPL duplo 5x/semana está <strong>ótimo para ectomorfo</strong><br>
-          • Creatina 5g/dia — <strong>correto, continue</strong><br>
-          • Whey no café — bom, mas sobe para <strong>40g</strong><br>
-          • Pão de fermentação natural > pão comum — <strong>boa escolha</strong>
-        </div>
+        <div class="tip-header"><span class="tip-icon">💡</span><div class="tip-title">Salada e legumes todo dia</div></div>
+        <div class="tip-body">Comer vegetais de forma consistente no almoço e na janta garante micronutrientes cruciais para a absorção das proteínas e a saúde digestiva.</div>
+      </div>
+
+      <div class="tip-card ok">
+        <div class="tip-header"><span class="tip-icon">⚡</span><div class="tip-title">Consistência da Creatina</div></div>
+        <div class="tip-body">Consuma as <strong>5g de creatina todos os dias</strong>, inclusive nos dias de descanso, em qualquer horário, acompanhado de bastante água. O efeito é por saturação cumulativa.</div>
+      </div>
+
+      <div class="tip-card warn">
+        <div class="tip-header"><span class="tip-icon">🍼</span><div class="tip-title">Whey imediato pós-treino</div></div>
+        <div class="tip-body">Consuma o whey de 35g logo após chegar em casa do treino, garantindo fornecimento rápido de aminoácidos para abrir a janela anabólica, antes da refeição sólida completa.</div>
       </div>
 
       <div class="tip-card">
         <div class="tip-header"><span class="tip-icon">🛒</span><div class="tip-title">Lista de compras essencial</div></div>
         <div class="tip-body">
-          <strong>Proteínas:</strong> frango (peito), atum, ovos, queijo cottage, iogurte grego, whey<br>
-          <strong>Carbos bons:</strong> arroz branco/integral, batata doce, aveia, tapioca<br>
-          <strong>Gorduras boas:</strong> ovos (gema), azeite, amendoim/pasta de amendoim, abacate<br>
-          <strong>Extras:</strong> whey 40g/dose, caseína (antes de dormir se puder)
+          <strong>Proteínas:</strong> frango (peito), carne moída magra, ovos, queijo mussarela, iogurte grego, whey<br>
+          <strong>Carbos bons:</strong> arroz branco, batata doce, pão de fermentação natural, doce de leite, aveia, melão<br>
+          <strong>Gorduras boas:</strong> azeite de oliva extra virgem, castanhas e amêndoas<br>
+          <strong>Suplementos:</strong> whey protein concentrado, creatina monohidratada
         </div>
       </div>
     </div>
@@ -481,154 +561,97 @@
 <script>
 // ===================== DATA =====================
 const DAYS = [
-  { id:'seg', label:'Seg', treino:true, tipo:'treino pesado (PPL)' },
-  { id:'ter', label:'Ter', treino:true, tipo:'treino + janta' },
-  { id:'qua', label:'Qua', treino:false, tipo:'aula dia todo' },
-  { id:'qui', label:'Qui', treino:true, tipo:'treino manhã' },
-  { id:'sex', label:'Sex', treino:true, tipo:'treino cedo' },
-  { id:'sab', label:'Sáb', treino:true, tipo:'treino' },
-  { id:'dom', label:'Dom', treino:false, tipo:'cardio / descanso' },
+  { id:'seg', label:'Seg', treino:true, tipo:'🏋️ Dia de Treino — Noturno (PPL)' },
+  { id:'ter', label:'Ter', treino:true, tipo:'🏋️ Dia de Treino — Noturno (PPL)' },
+  { id:'qua', label:'Qua', treino:true, tipo:'🏋️ Dia de Treino — Noturno (PPL)' },
+  { id:'qui', label:'Qui', treino:true, tipo:'🏋️ Dia de Treino — Noturno (PPL)' },
+  { id:'sex', label:'Sex', treino:true, tipo:'🏋️ Dia de Treino — Noturno (PPL)' },
+  { id:'sab', label:'Sáb', treino:false, tipo:'🛌 Dia de Descanso / Cardio' },
+  { id:'dom', label:'Dom', treino:false, tipo:'🛌 Dia de Descanso / Cardio' },
 ];
 
-const MEALS_TREINO = [
+const MEALS_TEMPLATE = [
   {
-    id:'cafe', name:'Café da Manhã', time:'07:00–08:00',
-    macros:{ kcal:520, prot:46, carb:52, fat:14 },
-    foods:[
-      { name:'Whey protein', qty:'40g (2 scoops)', tip:'Misture no iogurte ou shaker', dot:'accent' },
-      { name:'Iogurte grego integral', qty:'150g', tip:'Prefira sem adição de açúcar', dot:'accent' },
-      { name:'Aveia', qty:'40g', tip:'Pode misturar no iogurte com mel', dot:'accent' },
-      { name:'Pão fermentação natural', qty:'2 fatias', dot:'default' },
-      { name:'Queijo mussarela', qty:'1 fatia (25g)', dot:'default' },
-      { name:'Creatina', qty:'5g', tip:'Pode misturar em qualquer líquido', dot:'accent' },
+    id:'cafe', name:'Café da Manhã', time:'06h15',
+    tip:'Escolha a Opção A (Ovos) ou B (Whey)',
+    hasOptions:true,
+    options:[
+      {
+        name:'Opção A — Ovos',
+        macros:{ kcal:580, prot:35, carb:46, fat:29 },
+        foods:[
+          { name:'Café c/ leite integral 200ml', qty:'' },
+          { name:'Ovos mexidos', qty:'3 ovos', dot:'accent' },
+          { name:'Pão fermentação natural', qty:'2 fatias' },
+          { name:'Queijo mussarela', qty:'1 fatia' },
+        ]
+      },
+      {
+        name:'Opção B — Whey',
+        macros:{ kcal:585, prot:47, carb:53, fat:21 },
+        foods:[
+          { name:'Café c/ leite integral 200ml', qty:'' },
+          { name:'Iogurte grego 200ml', qty:'', dot:'accent' },
+          { name:'Whey protein (25g) + Creatina (5g)', qty:'1 dose', dot:'accent' },
+          { name:'Pão fermentação natural', qty:'2 fatias' },
+          { name:'Queijo mussarela', qty:'1 fatia' },
+        ]
+      }
     ],
-    alts:{ id:'cafe', label:'Café da Manhã', sub:'Alternativas para cada alimento' }
+    alts:{ id:'cafe', label:'Café da Manhã', sub:'Alternativas para café' }
   },
   {
-    id:'lanche1', name:'Lanche da Manhã', time:'10:00–10:30',
-    badge:'NOVO — anti-catabolismo',
-    macros:{ kcal:240, prot:28, carb:20, fat:6 },
+    id:'lanche_manha', name:'Lanche da Manhã', time:'09h30',
+    macros:{ kcal:255, prot:7, carb:23, fat:16 },
     foods:[
-      { name:'Iogurte grego', qty:'150g', dot:'accent' },
-      { name:'Pasta de amendoim', qty:'15g (1 col. sobremesa)', dot:'default' },
-      { name:'Banana', qty:'1 unidade', tip:'Ou 1 maçã', dot:'default' },
+      { name:'Melão', qty:'200g' },
+      { name:'Castanhas / amêndoas', qty:'30g', dot:'accent' },
     ],
     alts:{ id:'lanche1', label:'Lanche da Manhã', sub:'Opções práticas pro dia a dia' }
   },
   {
-    id:'almoco', name:'Almoço', time:'12:00–13:00',
-    macros:{ kcal:680, prot:50, carb:75, fat:16 },
+    id:'almoco', name:'Almoço', time:'12h00',
+    macros:{ kcal:745, prot:50, carb:92, fat:17 },
     foods:[
-      { name:'Peito de frango grelhado', qty:'200g', dot:'accent' },
-      { name:'Arroz branco ou integral', qty:'150g cozido', dot:'default' },
-      { name:'Feijão', qty:'100g cozido', tip:'+9g de proteína, não pule!', dot:'accent' },
-      { name:'Salada + legumes', qty:'à vontade', tip:'Priorize brócolis, espinafre', dot:'default' },
-      { name:'Azeite', qty:'1 colher (10g)', dot:'default' },
+      { name:'Frango grelhado', qty:'180g', dot:'accent' },
+      { name:'Arroz cozido', qty:'300g' },
+      { name:'Salada + legumes', qty:'à vontade' },
+      { name:'Azeite de oliva', qty:'10ml (1 fio)' },
     ],
     alts:{ id:'almoco', label:'Almoço', sub:'Trocas de proteína e carbo' }
   },
   {
-    id:'pre', name:'Pré-treino', time:'30–45min antes',
-    macros:{ kcal:310, prot:25, carb:40, fat:5 },
+    id:'lanche_tarde', name:'Lanche da Tarde', time:'15h30',
+    macros:{ kcal:365, prot:33, carb:35, fat:10 },
     foods:[
-      { name:'Banana', qty:'1 grande', tip:'Carboidrato rápido = energia no treino', dot:'accent' },
-      { name:'Whey protein', qty:'25g (1 scoop)', dot:'accent' },
-      { name:'Torrada integral ou tapioca', qty:'30g', dot:'default' },
+      { name:'Pão fermentação natural', qty:'2 fatias' },
+      { name:'Queijo mussarela', qty:'1 fatia' },
+      { name:'Frango desfiado / carne moída', qty:'75g', dot:'accent' },
+    ],
+    alts:{ id:'lanche2', label:'Lanche da Tarde', sub:'Substituições práticas' }
+  },
+  {
+    id:'pre_treino', name:'Pré-treino', time:'19h00', badge:'🏋️ treino 19h30',
+    macros:{ kcal:340, prot:8, carb:70, fat:4 },
+    foods:[
+      { name:'Banana média', qty:'1 unidade' },
+      { name:'Pão fermentação natural', qty:'2 fatias' },
+      { name:'Doce de leite', qty:'20g (1 colher)', dot:'accent' },
     ],
     alts:{ id:'pre', label:'Pré-treino', sub:'Opções rápidas antes da academia' }
   },
   {
-    id:'pos', name:'Pós-treino / Lanche da tarde', time:'logo após + 17:00',
-    macros:{ kcal:380, prot:35, carb:45, fat:8 },
+    id:'janta_pos', name:'Janta pós-treino', time:'21h30', badge:'pós',
+    macros:{ kcal:625, prot:71, carb:41, fat:19 },
     foods:[
-      { name:'Whey protein', qty:'30g', dot:'accent' },
-      { name:'Batata doce cozida', qty:'150g', tip:'Ou arroz se não tiver batata', dot:'default' },
-      { name:'Ovo cozido', qty:'2 unidades', dot:'accent' },
+      { name:'Whey protein (imediato)', qty:'35g', dot:'accent' },
+      { name:'Frango grelhado', qty:'180g', dot:'accent' },
+      { name:'Batata-doce cozida', qty:'150g' },
+      { name:'Legumes refogados', qty:'à vontade' },
+      { name:'Azeite de oliva', qty:'10ml (1 fio)' },
     ],
-    alts:{ id:'pos', label:'Pós-treino', sub:'Janela anabólica — não pule!' }
-  },
-  {
-    id:'janta', name:'Jantar', time:'20:00–21:00',
-    macros:{ kcal:610, prot:48, carb:55, fat:18 },
-    foods:[
-      { name:'Proteína magra', qty:'200g', tip:'Frango, patinho, tilápia ou salmão', dot:'accent' },
-      { name:'Arroz/macarrão integral', qty:'120g cozido', dot:'default' },
-      { name:'Legumes refogados', qty:'200g', tip:'Abobrinha, cenoura, brócolis', dot:'default' },
-    ],
-    alts:{ id:'janta', label:'Jantar', sub:'Variações para não enjoar' }
-  },
-  {
-    id:'ceia', name:'Ceia (opcional, mas recomendado)', time:'22:30–23:00',
-    macros:{ kcal:160, prot:18, carb:8, fat:6 },
-    foods:[
-      { name:'Iogurte grego', qty:'100g', tip:'Caseína natural = anti-catabolismo noturno', dot:'accent' },
-      { name:'Pasta de amendoim', qty:'10g', dot:'default' },
-    ],
-    alts:{ id:'ceia', label:'Ceia', sub:'Proteína lenta para a noite' }
-  },
-];
-
-const MEALS_DESCANSO = [
-  {
-    id:'cafe', name:'Café da Manhã', time:'07:00–09:00',
-    macros:{ kcal:480, prot:44, carb:45, fat:14 },
-    foods:[
-      { name:'Ovos mexidos', qty:'3 ovos inteiros', dot:'accent' },
-      { name:'Iogurte grego', qty:'150g', dot:'accent' },
-      { name:'Pão fermentação natural', qty:'2 fatias', dot:'default' },
-      { name:'Whey', qty:'30g', dot:'accent' },
-      { name:'Creatina', qty:'5g', dot:'default' },
-    ],
-    alts:{ id:'cafe', label:'Café da Manhã', sub:'Alternativas para variar' }
-  },
-  {
-    id:'lanche1', name:'Lanche da Manhã', time:'10:00–11:00',
-    badge:'NOVO',
-    macros:{ kcal:200, prot:22, carb:15, fat:6 },
-    foods:[
-      { name:'Atum em lata', qty:'1 lata (85g)', tip:'Com azeite e limão', dot:'accent' },
-      { name:'Torrada integral', qty:'3 unidades', dot:'default' },
-    ],
-    alts:{ id:'lanche1', label:'Lanche da Manhã', sub:'Opções simples e rápidas' }
-  },
-  {
-    id:'almoco', name:'Almoço', time:'12:00–13:00',
-    macros:{ kcal:620, prot:46, carb:65, fat:14 },
-    foods:[
-      { name:'Carne bovina (patinho)', qty:'180g', dot:'accent' },
-      { name:'Arroz + feijão', qty:'120g + 80g cozidos', dot:'default' },
-      { name:'Salada variada', qty:'à vontade', dot:'default' },
-    ],
-    alts:{ id:'almoco', label:'Almoço', sub:'Variações de proteína e carbo' }
-  },
-  {
-    id:'lanche2', name:'Lanche da Tarde', time:'15:30–16:00',
-    macros:{ kcal:250, prot:20, carb:25, fat:8 },
-    foods:[
-      { name:'Tapioca com frango desfiado', qty:'1 unidade (20g tapioca + 80g frango)', tip:'Substitui o pão de queijo', dot:'accent' },
-      { name:'Café preto sem açúcar', qty:'150ml', dot:'default' },
-    ],
-    alts:{ id:'lanche2', label:'Lanche da Tarde', sub:'Muito melhor que pão de queijo' }
-  },
-  {
-    id:'janta', name:'Jantar', time:'19:30–20:30',
-    macros:{ kcal:560, prot:44, carb:50, fat:16 },
-    foods:[
-      { name:'Proteína magra', qty:'180g', dot:'accent' },
-      { name:'Batata doce', qty:'150g', dot:'default' },
-      { name:'Legumes', qty:'200g', dot:'default' },
-    ],
-    alts:{ id:'janta', label:'Jantar', sub:'Jantar leve nos dias de descanso' }
-  },
-  {
-    id:'ceia', name:'Ceia', time:'22:00–22:30',
-    macros:{ kcal:130, prot:15, carb:8, fat:5 },
-    foods:[
-      { name:'Cottage cheese', qty:'100g', tip:'Alta caseína, ótimo para dormir', dot:'accent' },
-      { name:'Castanhas', qty:'10g (3–4 un)', dot:'default' },
-    ],
-    alts:{ id:'ceia', label:'Ceia', sub:'Proteína lenta para a noite' }
-  },
+    alts:{ id:'pos', label:'Pós-treino', sub:'Refeição pós-treino anabólica' }
+  }
 ];
 
 const ALTERNATIVAS = {
@@ -636,60 +659,51 @@ const ALTERNATIVAS = {
     { icon:'🥚', name:'Ovos mexidos + queijo', qty:'3 ovos + 30g queijo', macros:'~30g prot' },
     { icon:'🥣', name:'Panqueca de aveia + banana', qty:'60g aveia + 1 banana + 2 ovos', macros:'~28g prot' },
     { icon:'🥛', name:'Vitamina de banana com whey', qty:'200ml leite + 1 banana + 40g whey', macros:'~42g prot' },
-    { icon:'🫙', name:'Skyr / iogurte islandês', qty:'200g + 30g granola sem açúcar', macros:'~28g prot' },
   ],
   lanche1:[
-    { icon:'🥚', name:'2 ovos cozidos + fruta', qty:'2 ovos + 1 maçã', macros:'~14g prot' },
+    { icon:'🫙', name:'Pasta de amendoim + banana', qty:'2 col sobremesa + 1 banana', macros:'~9g prot' },
     { icon:'🧀', name:'Queijo cottage + castanhas', qty:'100g cottage + 15g castanhas', macros:'~17g prot' },
     { icon:'🥤', name:'Shaker de whey simples', qty:'30g whey + 300ml água', macros:'~24g prot' },
-    { icon:'🫙', name:'Pasta de amendoim + banana', qty:'2 col sobremesa + 1 banana', macros:'~9g prot' },
   ],
   almoco:[
     { icon:'🐟', name:'Salmão grelhado', qty:'180g + batata doce 150g', macros:'~42g prot' },
     { icon:'🥩', name:'Bife de patinho', qty:'200g + arroz 120g', macros:'~46g prot' },
     { icon:'🐠', name:'Tilápia assada', qty:'200g + macarrão integral 120g', macros:'~44g prot' },
-    { icon:'🥚', name:'Omelete de claras', qty:'5 claras + 1 gema + legumes', macros:'~30g prot' },
-    { icon:'🫘', name:'Frango + lentilha', qty:'150g frango + 100g lentilha', macros:'~50g prot' },
   ],
   pre:[
     { icon:'🍚', name:'Arroz branco + banana', qty:'80g arroz + 1 banana', macros:'~carbos rápidos' },
-    { icon:'🍫', name:'Banana + pasta de amendoim', qty:'1 banana grande + 20g pasta', macros:'~energético' },
     { icon:'🥣', name:'Mingau de aveia express', qty:'50g aveia + leite + mel', macros:'~30g carbo' },
   ],
   pos:[
     { icon:'🍗', name:'Frango + arroz', qty:'150g frango + 100g arroz', macros:'~40g prot' },
     { icon:'🥤', name:'Whey + leite + banana', qty:'30g whey + 200ml leite + 1 banana', macros:'~36g prot' },
-    { icon:'🧆', name:'Omelete + batata doce', qty:'3 ovos + 150g batata', macros:'~25g prot' },
-  ],
-  janta:[
-    { icon:'🐟', name:'Salmão + quinoa', qty:'180g + 100g quinoa', macros:'~44g prot' },
-    { icon:'🥩', name:'Fraldinha magra', qty:'180g + batata doce', macros:'~40g prot' },
-    { icon:'🍤', name:'Camarão refogado', qty:'200g + macarrão integral', macros:'~38g prot' },
-    { icon:'🐔', name:'Frango ao molho', qty:'200g + arroz', macros:'~48g prot' },
-    { icon:'🥗', name:'Bowl de atum + arroz + ovo', qty:'2 latas + 100g arroz + 2 ovos', macros:'~55g prot' },
   ],
   lanche2:[
     { icon:'🥞', name:'Tapioca + queijo', qty:'20g tapioca + 2 fatias queijo', macros:'~14g prot' },
     { icon:'🍌', name:'Banana + whey', qty:'1 banana + 25g whey', macros:'~22g prot' },
-    { icon:'🧀', name:'Pão integral + ovo', qty:'2 fatias + 1 ovo mexido', macros:'~16g prot' },
-  ],
-  ceia:[
-    { icon:'🥛', name:'Caseína em pó', qty:'30g + 200ml água ou leite', macros:'~24g prot lenta' },
-    { icon:'🧀', name:'Ricota + mel', qty:'100g ricota + 1 col chá mel', macros:'~14g prot' },
-    { icon:'🥚', name:'Clara de ovo cozida', qty:'4 claras', macros:'~14g prot' },
-    { icon:'🫙', name:'Skyr natural', qty:'150g', macros:'~18g prot' },
-  ],
+  ]
 };
 
 // ===================== STATE =====================
 let currentDay = new Date().getDay(); // 0=dom
-const dayMap = [6,0,1,2,3,4,5]; // JS getDay -> nosso array
+const dayMap = [6,0,1,2,3,4,5]; // JS getDay -> nosso array (seg=0, ter=1, ..., dom=6)
 let selectedDay = dayMap[currentDay];
 let dietToggle = null;
 let hydra = JSON.parse(localStorage.getItem('hydra_'+today()) || '0');
 let hydraCount = parseInt(hydra) || 0;
 
 function today(){ return new Date().toISOString().split('T')[0]; }
+
+// Get YYYY-MM-DD for whatever pill is selected
+function getDateOfSelectedDay(index) {
+  const now = new Date();
+  const currentDayIndex = dayMap[now.getDay()]; 
+  const diff = index - currentDayIndex;
+  const targetDate = new Date(now);
+  targetDate.setDate(now.getDate() + diff);
+  return targetDate.toISOString().split('T')[0];
+}
+
 function resetHydraIfNewDay(){
   const saved = localStorage.getItem('hydra_day');
   if(saved !== today()){ hydraCount=0; localStorage.setItem('hydra_day',today()); }
@@ -700,6 +714,7 @@ resetHydraIfNewDay();
 // ===================== RENDER =====================
 function buildDaySelector(){
   const c = document.getElementById('day-selector');
+  c.innerHTML = '';
   DAYS.forEach((d,i)=>{
     const b = document.createElement('button');
     b.className = 'day-pill' + (i===selectedDay?' active':'');
@@ -711,21 +726,66 @@ function buildDaySelector(){
 
 function renderMeals(){
   const d = DAYS[selectedDay];
-  const meals = d.treino ? MEALS_TREINO : MEALS_DESCANSO;
-  const totals = meals.reduce((a,m)=>({
+  const dateStr = getDateOfSelectedDay(selectedDay);
+  const completed = JSON.parse(localStorage.getItem(`completed_meals_${dateStr}`) || '[]');
+  
+  // Café da manhã option
+  const cafeOptIdx = parseInt(localStorage.getItem(`cafe_option_${dateStr}`) || '1'); // Default Opção B
+
+  const meals = MEALS_TEMPLATE.map(m => {
+    if (m.hasOptions) {
+      const opt = m.options[cafeOptIdx];
+      return {
+        ...m,
+        macros: opt.macros,
+        foods: opt.foods,
+        optionName: opt.name
+      };
+    }
+    return m;
+  });
+
+  // Totais recomendados (meta de hoje)
+  const targetTotals = meals.reduce((a,m)=>({
     kcal:a.kcal+m.macros.kcal, prot:a.prot+m.macros.prot,
     carb:a.carb+m.macros.carb, fat:a.fat+m.macros.fat
   }), {kcal:0,prot:0,carb:0,fat:0});
 
-  document.getElementById('mb-kcal').textContent = totals.kcal;
-  document.getElementById('mb-prot').textContent = totals.prot+'g';
-  document.getElementById('mb-carb').textContent = totals.carb+'g';
-  document.getElementById('mb-fat').textContent = totals.fat+'g';
+  // Totais consumidos com base nos checks
+  const consumedTotals = meals.reduce((a,m)=>{
+    if (completed.includes(m.id)) {
+      return {
+        kcal:a.kcal+m.macros.kcal,
+        prot:a.prot+m.macros.prot,
+        carb:a.carb+m.macros.carb,
+        fat:a.fat+m.macros.fat
+      };
+    }
+    return a;
+  }, {kcal:0,prot:0,carb:0,fat:0});
 
+  // Atualizar Banner: Consumido / Recomendado
+  document.getElementById('mb-kcal').textContent = `${consumedTotals.kcal} / ${targetTotals.kcal}`;
+  document.getElementById('mb-prot').textContent = `${consumedTotals.prot}g / ${targetTotals.prot}g`;
+  document.getElementById('mb-carb').textContent = `${consumedTotals.carb}g / ${targetTotals.carb}g`;
+  document.getElementById('mb-fat').textContent = `${consumedTotals.fat}g / ${targetTotals.fat}g`;
+
+  // Calcular porcentagens das barras de progresso do banner
+  const pKcal = targetTotals.kcal ? Math.min(100, (consumedTotals.kcal / targetTotals.kcal) * 100) : 0;
+  const pProt = targetTotals.prot ? Math.min(100, (consumedTotals.prot / targetTotals.prot) * 100) : 0;
+  const pCarb = targetTotals.carb ? Math.min(100, (consumedTotals.carb / targetTotals.carb) * 100) : 0;
+  const pFat = targetTotals.fat ? Math.min(100, (consumedTotals.fat / targetTotals.fat) * 100) : 0;
+
+  document.getElementById('pb-kcal').style.width = `${pKcal}%`;
+  document.getElementById('pb-prot').style.width = `${pProt}%`;
+  document.getElementById('pb-carb').style.width = `${pCarb}%`;
+  document.getElementById('pb-fat').style.width = `${pFat}%`;
+
+  // Atualizar macro pill superior
   const pill = document.getElementById('pill-prot');
-  pill.textContent = totals.prot+'g prot';
-  pill.className = 'macro-pill ' + (totals.prot>=140?'ok':'warn');
-  document.getElementById('pill-kcal').textContent = totals.kcal+' kcal';
+  pill.textContent = `${consumedTotals.prot}g / ${targetTotals.prot}g prot`;
+  pill.className = 'macro-pill ' + (consumedTotals.prot >= targetTotals.prot * 0.8 ? 'ok' : 'warn');
+  document.getElementById('pill-kcal').textContent = `${consumedTotals.kcal} / ${targetTotals.kcal} kcal`;
 
   const c = document.getElementById('meals-container');
   c.innerHTML = '';
@@ -738,7 +798,8 @@ function renderMeals(){
 
   meals.forEach((m,idx)=>{
     const card = document.createElement('div');
-    card.className = 'meal-card';
+    const isCompleted = completed.includes(m.id);
+    card.className = 'meal-card' + (isCompleted ? ' checked' : '');
     if(idx===0) card.classList.add('open');
 
     let foodsHTML = m.foods.map(f=>`
@@ -752,21 +813,38 @@ function renderMeals(){
       </div>
     `).join('');
 
+    let optionsSelectorHTML = '';
+    if (m.hasOptions) {
+      optionsSelectorHTML = `
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+          <button class="diet-toggle yes ${cafeOptIdx===0?'selected':''}" onclick="setCafeOption(event, 0)" style="flex:1; padding:8px; font-size:11px; font-weight:700;">🍳 Opção A — Ovos</button>
+          <button class="diet-toggle yes ${cafeOptIdx===1?'selected':''}" onclick="setCafeOption(event, 1)" style="flex:1; padding:8px; font-size:11px; font-weight:700;">🥛 Opção B — Whey</button>
+        </div>
+      `;
+    }
+
     card.innerHTML = `
       <div class="meal-header" onclick="toggleMeal(this.parentElement)">
-        <div>
-          <div class="meal-time">${m.time} ${m.badge?`<span style="color:var(--accent3);margin-left:6px;font-size:10px;">${m.badge}</span>`:''}</div>
-          <div class="meal-name">${m.name}</div>
-          <div class="meal-macros">
-            <span class="macro-tag">${m.macros.kcal} kcal</span>
-            <span class="macro-tag">${m.macros.prot}g prot</span>
-            <span class="macro-tag">${m.macros.carb}g carbo</span>
+        <div style="display:flex; align-items:center; gap:12px; flex:1; min-width:0;">
+          <button class="meal-check-btn ${isCompleted?'checked':''}" onclick="toggleMealCheck(event, '${m.id}')">
+            ${isCompleted?'✓':''}
+          </button>
+          <div style="flex:1; min-width:0;">
+            <div class="meal-time">${m.time} ${m.badge?`<span style="color:var(--accent3);margin-left:6px;font-size:10px;">${m.badge}</span>`:''}</div>
+            <div class="meal-name">${m.name} ${m.optionName?`<span style="color:var(--muted); font-size:11px; font-weight:normal;"> (${m.optionName})</span>`:''}</div>
+            <div class="meal-macros">
+              <span class="macro-tag">${m.macros.kcal} kcal</span>
+              <span class="macro-tag">${m.macros.prot}g prot</span>
+              <span class="macro-tag">${m.macros.carb}g carbo</span>
+            </div>
           </div>
         </div>
         <div class="meal-toggle">⌄</div>
       </div>
       <div class="meal-body">
+        ${optionsSelectorHTML}
         ${foodsHTML}
+        ${m.tip && !m.hasOptions?`<div class="food-tip" style="margin: 0 0 10px 0; font-style: italic; color: var(--muted); font-size:12px;">💡 ${m.tip}</div>`:''}
         ${m.alts?`<button class="alt-btn" onclick="openAlts('${m.alts.id}','${m.alts.label}','${m.alts.sub}')">🔄 Ver alternativas</button>`:''}
       </div>
     `;
@@ -775,6 +853,82 @@ function renderMeals(){
 }
 
 function toggleMeal(card){ card.classList.toggle('open'); }
+
+// ===================== SET CAFE OPTION =====================
+function setCafeOption(event, optIndex) {
+  event.stopPropagation();
+  const dateStr = getDateOfSelectedDay(selectedDay);
+  localStorage.setItem(`cafe_option_${dateStr}`, optIndex);
+  
+  // If breakfast is already completed, update the history log automatically
+  const completed = JSON.parse(localStorage.getItem(`completed_meals_${dateStr}`) || '[]');
+  if (completed.includes('cafe')) {
+    let logs = JSON.parse(localStorage.getItem('diet_logs') || '[]');
+    const logId = `auto_${dateStr}_cafe`;
+    const logIdx = logs.findIndex(l => l.id === logId);
+    
+    if (logIdx !== -1) {
+      const opt = MEALS_TEMPLATE[0].options[optIndex];
+      logs[logIdx].note = opt.foods.map(f => `${f.name}${f.qty?' ('+f.qty+')':''}`).join(', ');
+      localStorage.setItem('diet_logs', JSON.stringify(logs));
+      renderLogs();
+    }
+  }
+  
+  renderMeals();
+  updateDicasDynamic();
+  showToast(`Opção do Café da Manhã alterada!`);
+}
+
+// ===================== MEAL CHECK LOGIC =====================
+function toggleMealCheck(event, mealId) {
+  event.stopPropagation(); // Evita recolher o card
+  const dateStr = getDateOfSelectedDay(selectedDay);
+  let completed = JSON.parse(localStorage.getItem(`completed_meals_${dateStr}`) || '[]');
+  
+  const cafeOptIdx = parseInt(localStorage.getItem(`cafe_option_${dateStr}`) || '1');
+  const meals = MEALS_TEMPLATE.map(m => {
+    if (m.hasOptions) {
+      const opt = m.options[cafeOptIdx];
+      return { ...m, macros: opt.macros, foods: opt.foods };
+    }
+    return m;
+  });
+  const m = meals.find(meal => meal.id === mealId);
+
+  if (completed.includes(mealId)) {
+    // Uncheck
+    completed = completed.filter(id => id !== mealId);
+    let logs = JSON.parse(localStorage.getItem('diet_logs') || '[]');
+    logs = logs.filter(l => l.id !== `auto_${dateStr}_${mealId}`);
+    localStorage.setItem('diet_logs', JSON.stringify(logs));
+    showToast('Refeição desmarcada');
+  } else {
+    // Check
+    completed.push(mealId);
+    let logs = JSON.parse(localStorage.getItem('diet_logs') || '[]');
+    const logId = `auto_${dateStr}_${mealId}`;
+    const logExists = logs.some(l => l.id === logId);
+    if (!logExists) {
+      const displayDate = new Date(dateStr + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+      logs.unshift({
+        id: logId,
+        meal: `🍽️ ${m.name}`,
+        note: m.foods.map(f => `${f.name}${f.qty?' ('+f.qty+')':''}`).join(', '),
+        time: m.time,
+        onDiet: true,
+        date: displayDate,
+        rawDate: dateStr
+      });
+      localStorage.setItem('diet_logs', JSON.stringify(logs));
+    }
+    showToast('Refeição concluída! 💪');
+  }
+
+  localStorage.setItem(`completed_meals_${dateStr}`, JSON.stringify(completed));
+  renderMeals();
+  updateDicasDynamic();
+}
 
 // ===================== ALTS MODAL =====================
 function openAlts(id, label, sub){
@@ -800,7 +954,7 @@ function closeModal(e){
   }
 }
 
-// ===================== REGISTRO =====================
+// ===================== REGISTRO (LOGS & PESO) =====================
 function selectDietToggle(v){
   dietToggle = v;
   document.querySelectorAll('.diet-toggle').forEach(b=>b.classList.remove('selected'));
@@ -853,7 +1007,7 @@ function renderLogs(){
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
         <span class="log-badge ${l.onDiet?'ok':'off'}">${l.onDiet?'na dieta':'fora'}</span>
-        <button class="log-delete" onclick="deleteLog(${l.id})">✕</button>
+        <button class="log-delete" onclick="deleteLog('${l.id}')">✕</button>
       </div>
     </div>
   `).join('');
@@ -861,16 +1015,154 @@ function renderLogs(){
 
 function deleteLog(id){
   let logs = JSON.parse(localStorage.getItem('diet_logs')||'[]');
-  logs = logs.filter(l=>l.id!==id);
+  const logToDelete = logs.find(l => l.id == id);
+  
+  if (logToDelete && typeof logToDelete.id === 'string' && logToDelete.id.startsWith('auto_')) {
+    const parts = logToDelete.id.split('_');
+    const dateStr = parts[1];
+    const mealId = parts[2];
+    
+    let completed = JSON.parse(localStorage.getItem(`completed_meals_${dateStr}`) || '[]');
+    completed = completed.filter(mId => mId !== mealId);
+    localStorage.setItem(`completed_meals_${dateStr}`, JSON.stringify(completed));
+    
+    const currentViewDateStr = getDateOfSelectedDay(selectedDay);
+    if (currentViewDateStr === dateStr) {
+      renderMeals();
+    }
+  }
+
+  logs = logs.filter(l=>l.id != id);
   localStorage.setItem('diet_logs', JSON.stringify(logs));
   renderLogs();
+  updateDicasDynamic();
 }
 
 function clearLogs(){
   if(confirm('Limpar todo o histórico?')){
+    // Uncheck all meals in localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('completed_meals_')) {
+        localStorage.removeItem(key);
+      }
+      if (key && key.startsWith('cafe_option_')) {
+        localStorage.removeItem(key);
+      }
+    }
     localStorage.removeItem('diet_logs');
+    renderMeals();
     renderLogs();
+    updateDicasDynamic();
   }
+}
+
+// ===================== WEIGHT EVOLUTION LOGIC =====================
+function saveWeight() {
+  const wInput = document.getElementById('reg-weight');
+  const weight = parseFloat(wInput.value);
+  if (!weight || isNaN(weight) || weight <= 0) {
+    showToast('Insira um peso válido!');
+    return;
+  }
+  let weights = JSON.parse(localStorage.getItem('diet_weights') || '[]');
+  const d = today();
+  
+  // Overwrite today's weight if already exists
+  weights = weights.filter(w => w.date !== d);
+  weights.push({ date: d, weight });
+  
+  // Sort ascending by date
+  weights.sort((a, b) => new Date(a.date) - new Date(b.date));
+  
+  // Keep last 10 entries in storage to keep clean
+  if (weights.length > 10) weights.shift();
+  
+  localStorage.setItem('diet_weights', JSON.stringify(weights));
+  wInput.value = '';
+  showToast('Peso salvo ✓');
+  renderWeightChart();
+}
+
+function renderWeightChart() {
+  const container = document.getElementById('weight-chart-container');
+  const currentVal = document.getElementById('weight-current-val');
+  const weights = JSON.parse(localStorage.getItem('diet_weights') || '[]');
+  
+  if (weights.length > 0) {
+    const lastW = weights[weights.length - 1];
+    currentVal.textContent = `${lastW.weight.toFixed(1)} kg (${new Date(lastW.date + 'T12:00:00').toLocaleDateString('pt-BR', {day:'numeric', month:'short'})})`;
+  } else {
+    currentVal.textContent = '— kg';
+  }
+
+  if (weights.length < 2) {
+    container.innerHTML = `
+      <div style="font-size:12px; color:var(--muted); text-align:center; padding:10px;">
+        <span style="font-size:20px; display:block; margin-bottom:6px;">📊</span>
+        Registre o peso em pelo menos 2 dias diferentes para plotar o gráfico.
+      </div>
+    `;
+    return;
+  }
+
+  // Draw last 7 logged entries
+  const data = weights.slice(-7);
+  const w = 400;
+  const h = 80;
+  const padX = 25;
+  const padY = 15;
+
+  const minW = Math.min(...data.map(d => d.weight)) - 0.5;
+  const maxW = Math.max(...data.map(d => d.weight)) + 0.5;
+  const range = maxW - minW || 1;
+
+  const points = data.map((d, i) => {
+    const x = padX + (i * (w - 2 * padX) / (data.length - 1));
+    const y = h - padY - ((d.weight - minW) / range * (h - 2 * padY));
+    return { x, y, weight: d.weight, date: d.date };
+  });
+
+  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+  const areaPath = `${linePath} L ${points[points.length - 1].x} ${h} L ${points[0].x} ${h} Z`;
+
+  let circlesHTML = '';
+  let labelsHTML = '';
+  let datesHTML = '';
+
+  points.forEach((p, i) => {
+    const dateFormatted = new Date(p.date + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    // Circles
+    circlesHTML += `<circle cx="${p.x}" cy="${p.y}" r="3.5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5" />`;
+    // Weight Text labels
+    labelsHTML += `<text x="${p.x}" y="${p.y - 7}" fill="var(--text)" font-family="var(--mono)" font-size="8.5" font-weight="600" text-anchor="middle">${p.weight.toFixed(1)}</text>`;
+    // Date labels
+    datesHTML += `<text x="${p.x}" y="${h - 2}" fill="var(--muted)" font-family="var(--mono)" font-size="7.5" text-anchor="middle">${dateFormatted}</text>`;
+  });
+
+  container.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%; height:100%; overflow:visible;">
+      <defs>
+        <linearGradient id="weight-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.25"/>
+          <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.0"/>
+        </linearGradient>
+      </defs>
+      <!-- Grid line indicators -->
+      <line x1="${padX}" y1="${h - padY}" x2="${w - padX}" y2="${h - padY}" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2,2"/>
+      <line x1="${padX}" y1="${padY}" x2="${w - padX}" y2="${padY}" stroke="var(--border)" stroke-width="0.5" stroke-dasharray="2,2"/>
+      
+      <!-- Gradient Fill Area -->
+      <path d="${areaPath}" fill="url(#weight-grad)" />
+      <!-- Chart line stroke -->
+      <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      
+      <!-- Data circles, weight numbers, and date strings -->
+      ${circlesHTML}
+      ${labelsHTML}
+      ${datesHTML}
+    </svg>
+  `;
 }
 
 // ===================== HIDRATAÇÃO =====================
@@ -892,6 +1184,78 @@ function buildHydra(){
 function toggleCup(i){
   hydraCount = (i < hydraCount) ? i : i+1;
   buildHydra();
+  updateDicasDynamic();
+}
+
+// ===================== DYNAMIC HEALTH INSIGHTS =====================
+function updateDicasDynamic() {
+  const dateStr = getDateOfSelectedDay(dayMap[new Date().getDay()]);
+  const cafeOptIdx = parseInt(localStorage.getItem(`cafe_option_${dateStr}`) || '1');
+  
+  const meals = MEALS_TEMPLATE.map(m => {
+    if (m.hasOptions) {
+      return { ...m, macros: m.options[cafeOptIdx].macros };
+    }
+    return m;
+  });
+
+  const completedToday = JSON.parse(localStorage.getItem(`completed_meals_${today()}`) || '[]');
+  
+  let consumedProt = 0;
+  let targetProt = meals.reduce((sum, m) => sum + m.macros.prot, 0);
+
+  meals.forEach(m => {
+    if (completedToday.includes(m.id)) {
+      consumedProt += m.macros.prot;
+    }
+  });
+
+  // 1. Protein Card Update
+  const targetMinProt = 166; // Suas metas mínimas da tabela
+  const protPct = Math.min(100, Math.round((consumedProt / targetMinProt) * 100));
+  const protBar = document.getElementById('tips-prot-bar');
+  const protText = document.getElementById('tips-prot-text');
+  const protCard = document.getElementById('tips-prot-card');
+  const protTitle = document.getElementById('tips-prot-title');
+
+  if (protBar && protText && protCard) {
+    protBar.style.width = `${protPct}%`;
+    protText.textContent = `Consumido hoje: ${consumedProt}g de ${targetMinProt}g (${protPct}% da meta mínima de 166g)`;
+    
+    protCard.className = 'tip-card ' + (protPct < 50 ? 'crit' : protPct < 100 ? 'warn' : 'ok');
+    protBar.style.background = protPct < 50 ? 'var(--accent3)' : protPct < 100 ? 'var(--warn)' : 'var(--accent)';
+    
+    if (protPct < 50) {
+      protTitle.innerHTML = `<span class="tip-icon">🚨</span> <div class="tip-title">Proteína crítica — consuma mais hoje</div>`;
+    } else if (protPct < 100) {
+      protTitle.innerHTML = `<span class="tip-icon">⚠️</span> <div class="tip-title">Proteína moderada — quase na meta mínima</div>`;
+    } else {
+      protTitle.innerHTML = `<span class="tip-icon">✅</span> <div class="tip-title">Meta de proteína atingida! Excelente anabolismo!</div>`;
+    }
+  }
+
+  // 2. Hydration Card Update
+  const hydraPct = Math.min(100, Math.round((hydraCount / 12) * 100));
+  const hydraBar = document.getElementById('tips-hydra-bar');
+  const hydraText = document.getElementById('tips-hydra-text');
+  const hydraCard = document.getElementById('tips-hydra-card');
+  const hydraTitle = document.getElementById('tips-hydra-title');
+
+  if (hydraBar && hydraText && hydraCard) {
+    hydraBar.style.width = `${hydraPct}%`;
+    hydraText.textContent = `Consumido hoje: ${(hydraCount * 0.25).toFixed(2)}L de 3.00L (${hydraPct}% da meta)`;
+    
+    hydraCard.className = 'tip-card ' + (hydraPct < 50 ? 'crit' : hydraPct < 100 ? 'warn' : 'ok');
+    hydraBar.style.background = hydraPct < 50 ? 'var(--accent3)' : hydraPct < 100 ? 'var(--warn)' : 'var(--accent2)';
+    
+    if (hydraPct < 50) {
+      hydraTitle.innerHTML = `<span class="tip-icon">💧</span> <div class="tip-title">Hidratação gravemente insuficiente</div>`;
+    } else if (hydraPct < 100) {
+      hydraTitle.innerHTML = `<span class="tip-icon">⚠️</span> <div class="tip-title">Hidratação moderada — beba mais</div>`;
+    } else {
+      hydraTitle.innerHTML = `<span class="tip-icon">✅</span> <div class="tip-title">Meta de hidratação batida! Corpo anabólico!</div>`;
+    }
+  }
 }
 
 // ===================== NAV =====================
@@ -900,7 +1264,14 @@ function showSection(id){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('section-'+id).classList.add('active');
   event.target.classList.add('active');
-  if(id==='historico') renderLogs();
+  
+  if(id==='historico') {
+    renderLogs();
+  }
+  if(id==='dicas') {
+    renderWeightChart();
+    updateDicasDynamic();
+  }
 }
 
 // ===================== TOAST =====================
@@ -915,6 +1286,8 @@ function showToast(msg){
 buildDaySelector();
 renderMeals();
 buildHydra();
+renderWeightChart();
+updateDicasDynamic();
 
 // set current time on registro
 const now = new Date();
