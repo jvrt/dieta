@@ -370,6 +370,39 @@
   }
   .regime-badge.treino { background:#c8f55a20; color:var(--accent); border:1px solid var(--accent)44; }
   .regime-badge.descanso { background:#6b6b8520; color:var(--muted); border:1px solid var(--muted)44; }
+  
+  .segmented-control {
+    display: flex;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px;
+    gap: 2px;
+  }
+  .seg-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .seg-btn.active.treino {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .seg-btn.active.descanso {
+    background: rgba(107, 107, 133, 0.3);
+    color: var(--text);
+  }
+  .seg-btn:not(.active):hover {
+    color: var(--text);
+  }
 </style>
 </head>
 <body>
@@ -632,6 +665,7 @@ const MEALS_TEMPLATE = [
   },
   {
     id:'pre_treino', name:'Pré-treino', time:'19h00', badge:'🏋️ treino 19h30',
+    treinoOnly:true,
     macros:{ kcal:340, prot:8, carb:70, fat:4 },
     foods:[
       { name:'Banana média', qty:'1 unidade' },
@@ -642,6 +676,7 @@ const MEALS_TEMPLATE = [
   },
   {
     id:'janta_pos', name:'Janta pós-treino', time:'21h30', badge:'pós',
+    treinoOnly:true,
     macros:{ kcal:625, prot:71, carb:41, fat:19 },
     foods:[
       { name:'Whey protein (imediato)', qty:'35g', dot:'accent' },
@@ -651,6 +686,18 @@ const MEALS_TEMPLATE = [
       { name:'Azeite de oliva', qty:'10ml (1 fio)' },
     ],
     alts:{ id:'pos', label:'Pós-treino', sub:'Refeição pós-treino anabólica' }
+  },
+  {
+    id:'janta_descanso', name:'Janta', time:'19h30',
+    descansoOnly:true,
+    macros:{ kcal:560, prot:52, carb:45, fat:17 },
+    foods:[
+      { name:'Frango grelhado', qty:'180g', dot:'accent' },
+      { name:'Batata-doce cozida', qty:'150g' },
+      { name:'Salada + legumes', qty:'à vontade' },
+      { name:'Azeite de oliva', qty:'10ml (1 fio)' },
+    ],
+    alts:{ id:'janta_desc', label:'Janta (Descanso)', sub:'Opções de janta para dias sem treino' }
   }
 ];
 
@@ -681,6 +728,11 @@ const ALTERNATIVAS = {
   lanche2:[
     { icon:'🥞', name:'Tapioca + queijo', qty:'20g tapioca + 2 fatias queijo', macros:'~14g prot' },
     { icon:'🍌', name:'Banana + whey', qty:'1 banana + 25g whey', macros:'~22g prot' },
+  ],
+  janta_desc:[
+    { icon:'🥩', name:'Bife de patinho grelhado', qty:'200g + legumes', macros:'~46g prot' },
+    { icon:'🐟', name:'Salmão grelhado', qty:'180g + batata doce 150g', macros:'~42g prot' },
+    { icon:'🍳', name:'Omelete reforçado', qty:'4 ovos + queijo + legumes', macros:'~32g prot' },
   ]
 };
 
@@ -732,7 +784,16 @@ function renderMeals(){
   // Café da manhã option
   const cafeOptIdx = parseInt(localStorage.getItem(`cafe_option_${dateStr}`) || '1'); // Default Opção B
 
-  const meals = MEALS_TEMPLATE.map(m => {
+  // Filtrar refeições conforme dia de treino ou descanso (lê override do localStorage se houver)
+  const override = localStorage.getItem(`treino_override_${dateStr}`);
+  const isTreino = override ? (override === 'treino') : d.treino;
+  const mealsFiltered = MEALS_TEMPLATE.filter(m => {
+    if (m.treinoOnly && !isTreino) return false;
+    if (m.descansoOnly && isTreino) return false;
+    return true;
+  });
+
+  const meals = mealsFiltered.map(m => {
     if (m.hasOptions) {
       const opt = m.options[cafeOptIdx];
       return {
@@ -790,11 +851,28 @@ function renderMeals(){
   const c = document.getElementById('meals-container');
   c.innerHTML = '';
 
-  // Badge do dia
-  const badge = document.createElement('div');
-  badge.style.marginBottom='14px';
-  badge.innerHTML = `<span class="regime-badge ${d.treino?'treino':'descanso'}">${d.treino?'🏋️ DIA DE TREINO':'🛌 DIA DE DESCANSO / CARDIO'}</span><div style="font-size:12px;color:var(--muted);">${d.tipo}</div>`;
-  c.appendChild(badge);
+  // Badge e Controle de Treino do dia
+  const headerContainer = document.createElement('div');
+  headerContainer.style.display = 'flex';
+  headerContainer.style.justifyContent = 'space-between';
+  headerContainer.style.alignItems = 'center';
+  headerContainer.style.marginBottom = '14px';
+  headerContainer.style.background = 'var(--card)';
+  headerContainer.style.border = '1px solid var(--border)';
+  headerContainer.style.borderRadius = '12px';
+  headerContainer.style.padding = '10px 14px';
+
+  headerContainer.innerHTML = `
+    <div>
+      <span class="regime-badge ${isTreino?'treino':'descanso'}">${isTreino?'🏋️ DIA DE TREINO':'🛌 DIA DE DESCANSO'}</span>
+      <div style="font-size:11px;color:var(--muted);">${isTreino?'Hoje tem musculação! 💪':'Dia de recuperar os músculos 🛌'}</div>
+    </div>
+    <div class="segmented-control">
+      <button class="seg-btn treino ${isTreino?'active':''}" onclick="setDayTreino(event, '${dateStr}', true)">🏋️ Treino</button>
+      <button class="seg-btn descanso ${!isTreino?'active':''}" onclick="setDayTreino(event, '${dateStr}', false)">🛌 Descanso</button>
+    </div>
+  `;
+  c.appendChild(headerContainer);
 
   meals.forEach((m,idx)=>{
     const card = document.createElement('div');
@@ -850,6 +928,14 @@ function renderMeals(){
     `;
     c.appendChild(card);
   });
+}
+
+function setDayTreino(event, dateStr, train) {
+  event.stopPropagation();
+  localStorage.setItem(`treino_override_${dateStr}`, train ? 'treino' : 'descanso');
+  renderMeals();
+  updateDicasDynamic();
+  showToast(train ? 'Hoje é dia de treino! Foco! 🏋️' : 'Dia de descanso ativado! 🛌');
 }
 
 function toggleMeal(card){ card.classList.toggle('open'); }
